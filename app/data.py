@@ -1,0 +1,1 @@
+# Pandas-hantering, lagring av dataset

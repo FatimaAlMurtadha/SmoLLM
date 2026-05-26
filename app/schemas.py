@@ -1,0 +1,1 @@
+# Pydantic-modeller för API:t

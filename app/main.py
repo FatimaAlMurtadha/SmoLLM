@@ -1,3 +1,4 @@
+# FastAPI-app, endpoints
 def main():
     print("Hello from kk2-oraklet!")
 

@@ -9,6 +9,3 @@ wheels/
 # Virtual environments
 .venv
 .vscode
-
-# my fiels
-Notes.md
