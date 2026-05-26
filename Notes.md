@@ -17,6 +17,8 @@ uv run fastapi dev main.py
 
 
 
+uv add --dev pytest
+uv uv run pytest tests/test_health.py -v
 
 
 
