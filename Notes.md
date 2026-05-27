@@ -20,7 +20,7 @@ uv run uvicorn app.main:app --reload
 
 
 uv add --dev pytest
-uv run pytest tests/test_health.py -v
+uv run pytest tests/test_endpoints.py -v
 
 
 
