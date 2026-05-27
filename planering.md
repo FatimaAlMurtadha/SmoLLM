@@ -31,4 +31,17 @@
 # 6. ResponseParser
 
 
+Question
+   ↓
+PromptBuilder
+   ↓
+SmolLM
+   ↓
+ResponseParser
+   ↓
+JSON Answer
+
+
+
+
 
