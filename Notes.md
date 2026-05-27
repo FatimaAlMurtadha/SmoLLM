@@ -8,13 +8,15 @@ uv add transformers
 uv add "fastapi[standard]"
 from transformers import pipline
 
+uv add "fastapi[standard]" pandas pydantic python-multipart pytest
 uv add torch
 
 uv add pydantic
 
 uv run fastapi dev app/main.py
 
-
+uv sync
+uv run uvicorn app.main:app --reload
 
 
 uv add --dev pytest
