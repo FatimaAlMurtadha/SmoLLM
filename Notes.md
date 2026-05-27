@@ -28,3 +28,7 @@ uv run pytest tests/test_endpoints.py -v
 
 
 # coding train youtube evaluationary algorithem - genaric algorithem
+
+# QUESTIONS:
+- What is the average final score?
+- Which student behaviors show the strongest positive and negative relationship with academic performance?
