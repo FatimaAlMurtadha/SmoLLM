@@ -12,13 +12,13 @@ uv add torch
 
 uv add pydantic
 
-uv run fastapi dev main.py
+uv run fastapi dev app/main.py
 
 
 
 
 uv add --dev pytest
-uv uv run pytest tests/test_health.py -v
+uv run pytest tests/test_health.py -v
 
 
 
