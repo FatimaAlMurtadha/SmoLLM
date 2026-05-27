@@ -1,9 +1,16 @@
+from transformers import pipeline
 from app.chain.runnable import Runnable
 from app.schemas import (
     PromptInput,
     PromptOutput,
     LLMOutput,
     ParsedAnswer,
+)
+
+# Initialize a text generation pipeline using the HuggingFace Transformers library. The pipeline is configured to use the "HuggingFaceTB/SmolLM2-135M-Instruct" model, which is a small language model designed for instruction-following tasks. This pipeline will be used later in the processing chain to generate responses based on the constructed prompts.
+generator = pipeline(
+    "text-generation",
+    model="HuggingFaceTB/SmolLM2-135M-Instruct"
 )
 
 # The PromptBuilder class is a specific implementation of the Runnable interface that takes a PromptInput and produces a PromptOutput. The invoke method constructs a prompt string based on the provided dataset statistics and user question, following a specific format that instructs the AI to use only the provided data to answer the question. If the answer cannot be determined from the data, it instructs the AI to respond with "Not enough information." The generated prompt is then returned as a PromptOutput object.
