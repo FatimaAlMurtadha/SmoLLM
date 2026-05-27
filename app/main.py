@@ -25,3 +25,13 @@ async def upload(file: UploadFile = File(...)):
     DATA_LOADED = True
 
     return meta
+
+# Endpoint to retrieve statistics about the loaded dataset. If no dataset has been uploaded (i.e., DATA_LOADED is False), it raises an HTTP 404 error indicating that no dataset is available. If a dataset has been loaded, it returns the statistics of the dataset using the get_stats function.
+@app.get("/data/stats")
+def stats():
+    stats = get_stats()
+
+    if stats is None:
+        raise HTTPException(404, "No dataset uploaded")
+
+    return stats
