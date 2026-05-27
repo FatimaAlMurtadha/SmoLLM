@@ -12,3 +12,16 @@ DATA_LOADED = False
 @app.get("/health")
 def health():
     return {"status": "OK"}
+
+# Endpoint to upload a CSV file. It accepts a file upload, checks if the file is a CSV, and if so, loads the data using the load_csv function. The endpoint returns metadata about the loaded dataset, such as the number of rows, columns, and data types. If the uploaded file is not a CSV, it raises an HTTP 400 error.
+@app.post("/data/upload")
+async def upload(file: UploadFile = File(...)):
+    global DATA_LOADED
+
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(400, "Only CSV allowed")
+
+    meta = load_csv(file.file)
+    DATA_LOADED = True
+
+    return meta
