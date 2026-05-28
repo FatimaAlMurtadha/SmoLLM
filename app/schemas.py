@@ -1,13 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 # This schema defines the structure of the request body for an API endpoint that accepts a question. The AskRequest model has a single field, 'question', which is a string. This model can be used to validate incoming requests to ensure they contain the expected data format.
 class AskRequest(BaseModel):
-    question: str
+    question: str = Field(min_length=1) # must be a non-empty string / the question cannot be an empty string
 
 # These schemas define the structure of the data used in the application. PromptInput represents the input for generating a prompt, containing a question and associated statistics. PromptOutput represents the output of the prompt generation process, containing the generated prompt as a string. LLMOutput represents the raw text output from a language model, while ParsedAnswer represents a structured answer extracted from the raw text, containing just the answer as a string. These models can be used for data validation and serialization in API endpoints or other parts of the application that handle these types of data.
 class PromptInput(BaseModel):
-    question: str
+    question: str = Field(min_length=1)
     stats: dict
 
 # The PromptOutput model represents the output of a prompt generation process, containing the generated prompt as a string. This model can be used to structure the response from an API endpoint that generates prompts based on input data.
@@ -20,4 +20,4 @@ class LLMOutput(BaseModel):
 
 # The ParsedAnswer model represents a structured answer extracted from the raw text output of a language model. It contains a single field, 'answer', which is a string representing the extracted answer. This model can be used to structure the response from an API endpoint that processes the raw output from a language model and extracts a specific answer for the client.
 class ParsedAnswer(BaseModel):
-    answer: str
+    answer: str = Field(min_length=1)
