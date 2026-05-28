@@ -16,27 +16,33 @@ class Runnable(BaseModel, Generic[I, O]):
 
 # The invoke method must be implemented by subclasses to define how the Runnable processes input data to produce output.
     def invoke(self, data: I) -> O:
-        raise NotImplementedError()
+        raise NotImplementedError("Subclasses is not implemented")
 
 # The __or__ method allows chaining Runnables together using the | operator. If the other object is a Runnable, it creates a RunnableSequence. If the other object is a callable, it wraps it in a RunnableLambda and then creates a RunnableSequence.
-    def __or__(self, other: Any):
+    def __or__(self, other: Any) -> 'RunnableSequence':
         if isinstance(other, Runnable):
             return RunnableSequence.model_construct(first=self, second=other)
 
         if callable(other):
             return RunnableSequence.model_construct(
                 first=self,
-                second=RunnableLambda.model_construct(func=other, name=other.__name__)
+                second=other,
             )
-
+        if callable(other):
+            return RunnableSequence.model_construct(
+                first=self,
+                second=RunnableLambda.model_construct(func=other, name=other.__name__),
+                name=other.__name__,
+            )
         return NotImplemented
 
 # The __ror__ method allows chaining Runnables together in reverse order using the | operator. If the other object is a callable, it wraps it in a RunnableLambda and then creates a RunnableSequence with the current Runnable as the second part of the sequence.
-    def __ror__(self, other: Any):
+    def __ror__(self, other: Any) -> Any :
         if callable(other):
             return RunnableSequence.model_construct(
                 first=RunnableLambda.model_construct(func=other),
-                second=self
+                second=self,
+                name=other.__name__,
             )
 
         return NotImplemented
