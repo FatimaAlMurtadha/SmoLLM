@@ -23,9 +23,23 @@ def test_ask_without_dataset():
     response = client.post(
         "/ai/ask",
         json={
-            "question": "Which student has highest score?"
+            "question": "What is average score?"
         }
     )
 
     assert response.status_code == 404
     assert response.json()["detail"] == "No dataset uploaded"
+
+# This test checks the /data/upload endpoint when an invalid file is uploaded. 
+# It sends a POST request with a file that is not a CSV and asserts that the response status code is 400
+#  indicating that the file format is not acceptable for upload.
+def test_upload_invalid_file():
+
+    response = client.post(
+        "/data/upload",
+        files={
+            "file": ("bad.txt", b"not csv")
+        }
+    )
+
+    assert response.status_code == 400
