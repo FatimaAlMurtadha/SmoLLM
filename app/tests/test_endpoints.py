@@ -29,21 +29,6 @@ def test_ask_before_upload():
     assert response.status_code == 404
     assert response.json()["detail"] == "No dataset uploaded"
 
-# This test checks the /ai/ask endpoint when no dataset has been uploaded. 
-# It sends a POST request with a question in the request body and asserts that the response status code is 404, indicating that no dataset is available for processing the question. 
-# It also checks that the error message in the response body is "No dataset uploaded".
-def test_ask_without_dataset():
-
-    response = client.post(
-        "/ai/ask",
-        json={
-            "question": "What is average score?"
-        }
-    )
-
-    assert response.status_code == 404
-    assert response.json()["detail"] == "No dataset uploaded"
-
 # This test checks the /data/upload endpoint when an invalid file is uploaded. 
 # It sends a POST request with a file that is not a CSV and asserts that the response status code is 400
 #  indicating that the file format is not acceptable for upload.
@@ -58,14 +43,23 @@ def test_upload_invalid_file():
 
     assert response.status_code == 400
 
+# This test checks the /data/upload endpoint when an empty CSV file is uploaded.
+def test_upload_empty_csv():
 
-# This test checks the /ai/ask endpoint with a mocked response from the LLMRunner. 
-# It uses the unittest.mock.patch decorator to mock the invoke method of the LLMRunner class
-#  to return a predefined answer. The test then sends a POST request to the /ai/ask endpoint with a question and asserts 
-# that the response status code is either 404 (if no dataset is uploaded) 
-# or 200 (if the mocked response is returned successfully). 
-# The test does not assert the content of the response since it depends on whether a dataset is uploaded or not
-# but it ensures that the endpoint can handle the mocked response without errors.
+    response = client.post(
+        "/data/upload",
+        files={
+            "file": (
+                "empty.csv",
+                b"",
+                "text/csv"
+            )
+        }
+    )
+
+    assert response.status_code == 400
+
+
 @patch("app.chain.steps.LLMRunner.invoke")
 def test_ai_ask_mocked(mock_llm):
 
@@ -75,11 +69,34 @@ def test_ai_ask_mocked(mock_llm):
         {"answer": "Average score is 85"}
     )()
 
-    response = client.post(
-        "/ai/ask",
-        json={
-            "question": "What is average score?"
+    csv_data = (
+        b"name,score\n"
+        b"Ali,85\n"
+        b"Sara,90"
+    )
+
+    upload_response = client.post(
+        "/data/upload",
+        files={
+            "file": (
+                "students.csv",
+                csv_data,
+                "text/csv"
+            )
         }
     )
 
-    assert response.status_code == 404 or response.status_code == 200
+    assert upload_response.status_code == 200
+
+    response = client.post(
+        "/ai/ask",
+        json={
+            "question": "What is the average score?"
+        }
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["answer"] == "Average score is 85"
