@@ -42,6 +42,11 @@ ResponseParser
 JSON Answer
 
 
+server actions	= behavior
+file uploads =	debugging
+AI questions =	monitoring
+errors	= robustness
+model failures	= observability
 
 
 
