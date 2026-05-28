@@ -62,7 +62,7 @@ class LLMRunner(Runnable[PromptOutput, LLMOutput]):
             result = generator(
                 data.prompt,
                 max_new_tokens=250,
-                return_full_text=False,
+                return_full_text=False, # Only return the generated text, not the original prompt.
                 truncation=True
             )
 

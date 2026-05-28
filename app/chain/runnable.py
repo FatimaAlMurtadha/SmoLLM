@@ -18,7 +18,9 @@ class Runnable(BaseModel, Generic[I, O]):
     def invoke(self, data: I) -> O:
         raise NotImplementedError("Subclasses is not implemented")
 
-# The __or__ method allows chaining Runnables together using the | operator. If the other object is a Runnable, it creates a RunnableSequence. If the other object is a callable, it wraps it in a RunnableLambda and then creates a RunnableSequence.
+# The __or__ method allows chaining Runnables together using the | operator. 
+# If the other object is a Runnable, it creates a RunnableSequence. 
+# If the other object is a callable, it wraps it in a RunnableLambda and then creates a RunnableSequence.
     def __or__(self, other: Any) -> 'RunnableSequence':
         if isinstance(other, Runnable):
             return RunnableSequence.model_construct(first=self, second=other)
@@ -36,7 +38,8 @@ class Runnable(BaseModel, Generic[I, O]):
             )
         return NotImplemented
 
-# The __ror__ method allows chaining Runnables together in reverse order using the | operator. If the other object is a callable, it wraps it in a RunnableLambda and then creates a RunnableSequence with the current Runnable as the second part of the sequence.
+# The __ror__ method allows chaining Runnables together in reverse order using the | operator. 
+# If the other object is a callable, it wraps it in a RunnableLambda and then creates a RunnableSequence with the current Runnable as the second part of the sequence.
     def __ror__(self, other: Any) -> Any :
         if callable(other):
             return RunnableSequence.model_construct(
@@ -47,7 +50,8 @@ class Runnable(BaseModel, Generic[I, O]):
 
         return NotImplemented
 
-# RunnableLambda is a simple implementation of Runnable that wraps a callable function. The invoke method simply calls the wrapped function with the input data.
+# RunnableLambda is a simple implementation of Runnable that wraps a callable function. 
+# The invoke method simply calls the wrapped function with the input data.
 class RunnableLambda(Runnable[I, O]):
     func: Callable[[I], O]
 
@@ -55,7 +59,8 @@ class RunnableLambda(Runnable[I, O]):
     def invoke(self, data: I) -> O:
         return self.func(data)
 
-# RunnableSequence is an implementation of Runnable that represents a sequence of two Runnables. The invoke method first invokes the first Runnable with the input data, then takes the output and passes it to the second Runnable, returning the final output.
+# RunnableSequence is an implementation of Runnable that represents a sequence of two Runnables. 
+# The invoke method first invokes the first Runnable with the input data, then takes the output and passes it to the second Runnable, returning the final output.
 class RunnableSequence(Runnable[I, O], Generic[I, M, O]):
     first: SerializeAsAny[Runnable[I, M]]
     second: SerializeAsAny[Runnable[M, O]]

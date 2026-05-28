@@ -1,0 +1,1 @@
+The dataset used to test this project is the same dataset previously analyzed in KK1, which allows continuity between exploratory data analysis and AI-driven querying. This ensures semantic consistency in the LLM responses.
