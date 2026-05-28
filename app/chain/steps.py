@@ -53,16 +53,28 @@ class LLMRunner(Runnable[PromptOutput, LLMOutput]):
 
     def invoke(self, data: PromptOutput) -> LLMOutput:
 
-        result = generator(
-            data.prompt,
-            max_new_tokens=250,
-            truncation=True
-        )
+        # The invoke method attempts to generate a response using the text generation pipeline. 
+        # It calls the generator with the prompt from the PromptOutput, specifying a maximum of 250 new tokens and enabling truncation. 
+        # The generated text is extracted from the result, and only the portion of the text that was generated (excluding the original prompt) is returned as an LLMOutput object. 
+        # If any exceptions occur during this process, an LLMOutput containing an error message is returned instead.
+        try:
 
-        full_text = result[0]["generated_text"]
-        generated_only = full_text[len(data.prompt):].strip()
+            result = generator(
+                data.prompt,
+                max_new_tokens=250,
+                truncation=True
+            )
 
-        return LLMOutput(raw_text=generated_only)
+            full_text = result[0]["generated_text"]
+            generated_only = full_text[len(data.prompt):].strip()
+
+            return LLMOutput(raw_text=generated_only)
+        
+        except Exception as e:
+
+            return LLMOutput(
+                raw_text=f"Model error: {str(e)}"
+            )
     
 # The ResponseParser class is a simple implementation of the Runnable interface that takes an LLMOutput and produces a ParsedAnswer. 
 # The invoke method processes the raw text output from the language model, stripping any leading or trailing whitespace, and returns the cleaned answer as a ParsedAnswer object.
