@@ -18,6 +18,15 @@ class PromptBuilder(Runnable[PromptInput, PromptOutput]):
 
 # The invoke method constructs a prompt string using the provided dataset statistics and user question. It follows a specific format that instructs the AI to use only the provided data to answer the question, and to respond with "Not enough information." if the answer cannot be determined from the data. The generated prompt is returned as a PromptOutput object.
     def invoke(self, data: PromptInput) -> PromptOutput:
+        # The dataset statistics are formatted into a string that lists each column and its associated statistics in a readable format. This formatted string is then included in the final prompt that will be sent to the language model for generating an answer.
+        formatted_stats = ""
+
+        for column, values in data.stats.items():
+
+            formatted_stats += f"\nColumn: {column}\n"
+
+            for key, value in values.items():
+                formatted_stats += f"  {key}: {value}\n"
 
 # The prompt string is constructed using a multi-line f-string that incorporates the dataset statistics and user question from the PromptInput. The prompt instructs the AI to be a strict data analyst, to use only the provided dataset statistics, and to answer briefly and clearly. If the answer cannot be determined from the data, it explicitly tells the AI to respond with "Not enough information."
         prompt = f"""
@@ -29,12 +38,12 @@ If the answer cannot be determined from the data,
 say: "Not enough information."
 
 Dataset statistics:
-{data.stats}
+{formatted_stats}
 
 User question:
 {data.question}
 
-Answer briefly and clearly.
+Answer briefly and clearly in one or two sentences.
 """
 # The generated prompt is returned as a PromptOutput object, which can be used in subsequent steps of the processing chain, such as sending it to a language model for generating an answer.
         return PromptOutput(prompt=prompt)
