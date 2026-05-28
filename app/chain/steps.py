@@ -62,6 +62,7 @@ class LLMRunner(Runnable[PromptOutput, LLMOutput]):
             result = generator(
                 data.prompt,
                 max_new_tokens=250,
+                return_full_text=False,
                 truncation=True
             )
 
