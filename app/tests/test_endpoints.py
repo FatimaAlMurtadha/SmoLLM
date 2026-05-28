@@ -59,6 +59,18 @@ def test_upload_empty_csv():
 
     assert response.status_code == 400
 
+# This test checks the /ai/ask endpoint when an empty question is sent.
+def test_empty_question():
+
+    response = client.post(
+        "/ai/ask",
+        json={
+            "question": ""
+        }
+    )
+
+    assert response.status_code == 422
+
 
 @patch("app.chain.steps.LLMRunner.invoke")
 def test_ai_ask_mocked(mock_llm):
