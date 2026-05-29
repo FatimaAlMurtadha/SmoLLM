@@ -51,3 +51,12 @@ def test_response_parser_removes_quotes():
     result = parser.invoke(output)
 
     assert result.answer == "85"
+
+
+def test_response_parser_empty_lines():
+    parser = ResponseParser()
+
+    output = LLMOutput(raw_text="\n\n  85  \n\n")
+    result = parser.invoke(output)
+
+    assert result.answer == "85"
