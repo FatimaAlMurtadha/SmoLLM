@@ -28,7 +28,7 @@ def test_ask_before_upload():
     )
 
     assert response.status_code == 400
-    assert response.json()["detail"] == "Datatset must be uploaded before asking questions"
+    assert response.json()["detail"] == "Dataset must be uploaded before asking questions"
 
 # This test checks the /data/upload endpoint when an invalid file is uploaded. 
 # It sends a POST request with a file that is not a CSV and asserts that the response status code is 400
@@ -68,13 +68,9 @@ def test_empty_question():
 @patch("app.chain.steps.LLMRunner.invoke")
 def test_ai_ask_mocked(mock_llm):
 
-    mock_llm.return_value = ParsedAnswer(
-        question="What is the average score?",
-        answer="Average score is 90",
-        model="MockModel"
-    )
+    mock_llm.return_value = ParsedAnswer(answer="Average score is 85")
 
-    csv_data = b"name,score\nAli,85\nSara,90"
+    csv_data = b"name,score\nAnna,85\nSukaina,90"
 
     upload_response = client.post(
         "/data/upload",

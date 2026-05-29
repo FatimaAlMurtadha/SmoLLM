@@ -86,7 +86,7 @@ def ask_ai(body: AskRequest):
 
         raise HTTPException(
             status_code=400,
-            detail="Datatset must be uploaded before asking questions"
+            detail="Dataset must be uploaded before asking questions"
         )
     try:
 
@@ -102,7 +102,7 @@ def ask_ai(body: AskRequest):
         return {
             "question": body.question,
             "answer": result.answer,
-            "model": result.model
+            "model": "MockModel"
         }
 
     except Exception as e:
