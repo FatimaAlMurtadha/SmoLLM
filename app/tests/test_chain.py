@@ -35,3 +35,11 @@ def test_response_parser_basic():
 
     assert result.answer == "The average is 85"
 
+
+def test_response_parser_removes_prefixes():
+    parser = ResponseParser()
+
+    output = LLMOutput(raw_text="Answer: 85")
+    result = parser.invoke(output)
+
+    assert result.answer == "85"
