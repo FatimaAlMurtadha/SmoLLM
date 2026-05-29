@@ -1,6 +1,8 @@
 from app.chain.steps import PromptBuilder, ResponseParser, LLMRunner
 from app.chain.runnable import Runnable
 from app.schemas import PromptInput, LLMOutput, PromptOutput
+from unittest.mock import patch
+from app.chain.pipeline import oracle_chain
 
 def test_prompt_builder():
 
@@ -97,3 +99,17 @@ def test_runnable_sequence():
     chain = Step1() | Step2()
     result = chain.invoke(3)
     assert result == 8  # (3 + 1) * 2
+
+@patch("app.chain.steps.LLMRunner.invoke")
+def test_oracle_chain_full(mock_llm):
+
+    mock_llm.return_value = LLMOutput(raw_text="Answer: 85")
+
+    data = PromptInput(
+        question="What is the average score?",
+        stats={"Score": {"mean": 85}}
+    )
+
+    result = oracle_chain.invoke(data)
+
+    assert result.answer == "85"
