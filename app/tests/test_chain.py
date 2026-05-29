@@ -43,3 +43,11 @@ def test_response_parser_removes_prefixes():
     result = parser.invoke(output)
 
     assert result.answer == "85"
+
+def test_response_parser_removes_quotes():
+    parser = ResponseParser()
+
+    output = LLMOutput(raw_text='"85"')
+    result = parser.invoke(output)
+
+    assert result.answer == "85"
