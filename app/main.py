@@ -1,15 +1,13 @@
 # FastAPI-app, endpoints
 from fastapi import FastAPI, HTTPException, UploadFile, File
+import logging
 from app.data import load_csv, get_stats
-from app.schemas import AskRequest
 from app.schemas import (
     AskRequest,
     PromptInput
 )
-
 from app.chain.pipeline import oracle_chain
-from app.data import get_stats
-import logging
+
 
 app = FastAPI()
 
@@ -23,7 +21,7 @@ logger = logging.getLogger(__name__)
 # The DATA_LOADED variable is set to True after successfully loading the dataset.
 @app.get("/health")
 def health():
-    return {"status": "OK"}
+    return {"status": "OK"} 
 
 # Endpoint to upload a CSV file. It accepts a file upload, checks if the file is a CSV, and if so, loads the data using the load_csv function. 
 # The endpoint returns metadata about the loaded dataset, such as the number of rows, columns, and data types. If the uploaded file is not a CSV, it raises an HTTP 400 error.
@@ -37,7 +35,7 @@ async def upload(file: UploadFile = File(...)):
         logger.warning(
             f"Rejected non-CSV file: {file.filename}"
         )
-        logger.info(f"Upload attempt failed: {file.filename}")
+        logger.info(f"CSV loading failed: {file.filename}")
         
         raise HTTPException(400, "Only CSV allowed")
 
@@ -51,7 +49,7 @@ async def upload(file: UploadFile = File(...)):
 
     except Exception as e:
         logger.error(f"Error occurred while loading CSV: {str(e)}")
-        logger.info(f"Upload attempt failed: {file.filename}")
+        logger.info(f"CSV loading failed: {file.filename}")
 
         raise HTTPException(status_code=400, detail="Failed to read CSV")
     
@@ -87,8 +85,8 @@ def ask_ai(body: AskRequest):
         logger.info(f"AI question failed: {body.question}")
 
         raise HTTPException(
-            status_code=404,
-            detail="No dataset uploaded"
+            status_code=400,
+            detail="Datatset must be uploaded before asking questions"
         )
     try:
 
@@ -103,7 +101,8 @@ def ask_ai(body: AskRequest):
 
         return {
             "question": body.question,
-            "answer": result.answer
+            "answer": result.answer,
+            "model": result.model
         }
 
     except Exception as e:
