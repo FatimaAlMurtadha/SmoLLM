@@ -10,7 +10,7 @@ from app.chain.steps import (
 # This modular design allows for clear separation of concerns and easy maintenance of each individual step in the processing pipeline.
 
 oracle_chain = (
-    PromptBuilder()
-    | LLMRunner()
-    | ResponseParser()
+    PromptBuilder(name="prompt_builder")
+    | LLMRunner(name="llm_runner")
+    | ResponseParser(name="response_parser")
 )
