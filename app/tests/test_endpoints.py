@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from app.main import app
 from unittest.mock import patch
-from app.schemas import ParsedAnswer
+from app.schemas import LLMOutput, ParsedAnswer
 
 client = TestClient(app)
 
@@ -68,7 +68,7 @@ def test_empty_question():
 @patch("app.chain.steps.LLMRunner.invoke")
 def test_ai_ask_mocked(mock_llm):
 
-    mock_llm.return_value = ParsedAnswer(answer="Average score is 85")
+    mock_llm.return_value = LLMOutput(raw_text="Average score is 85")
 
     csv_data = b"name,score\nAnna,85\nSukaina,90"
 
