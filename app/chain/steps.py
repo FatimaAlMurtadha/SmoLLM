@@ -7,12 +7,6 @@ from app.schemas import (
     ParsedAnswer,
 )
 
-# Initialize a text generation pipeline using the HuggingFace Transformers library. The pipeline is configured to use the "HuggingFaceTB/SmolLM2-135M-Instruct" model, which is a small language model designed for instruction-following tasks. This pipeline will be used later in the processing chain to generate responses based on the constructed prompts.
-generator = pipeline(
-    "text-generation",
-    model="HuggingFaceTB/SmolLM2-135M-Instruct"
-)
-
 # The PromptBuilder class is a specific implementation of the Runnable interface that takes a PromptInput and produces a PromptOutput. The invoke method constructs a prompt string based on the provided dataset statistics and user question, following a specific format that instructs the AI to use only the provided data to answer the question. If the answer cannot be determined from the data, it instructs the AI to respond with "Not enough information." The generated prompt is then returned as a PromptOutput object.
 class PromptBuilder(Runnable[PromptInput, PromptOutput]):
 
@@ -46,10 +40,17 @@ User question:
 Answer briefly and clearly in one or two sentences.
 """
 # The generated prompt is returned as a PromptOutput object, which can be used in subsequent steps of the processing chain, such as sending it to a language model for generating an answer.
-        return PromptOutput(prompt=prompt)
+        return PromptOutput(prompt=prompt.strip())
     
 # The LLMRunner class is another implementation of the Runnable interface that takes a PromptOutput and produces an LLMOutput. The invoke method uses the previously defined text generation pipeline to generate a response based on the prompt contained in the PromptOutput. The generated text is extracted from the result and returned as an LLMOutput object.
 class LLMRunner(Runnable[PromptOutput, LLMOutput]):
+
+    def _init_(self):
+        # Lazy loading → faster tests, better performance
+        self.generator = pipeline(
+            "text-generation",
+            model="HuggingFaceTB/SmolLM2-135M-Instruct"
+        )
 
     def invoke(self, data: PromptOutput) -> LLMOutput:
 
@@ -59,17 +60,16 @@ class LLMRunner(Runnable[PromptOutput, LLMOutput]):
         # If any exceptions occur during this process, an LLMOutput containing an error message is returned instead.
         try:
 
-            result = generator(
+            result = self.generator(
                 data.prompt,
                 max_new_tokens=250,
                 return_full_text=False, # Only return the generated text, not the original prompt.
                 truncation=True
             )
 
-            full_text = result[0]["generated_text"]
-            generated_only = full_text[len(data.prompt):].strip()
+            generated_text = result[0]["generated_text"].strip()
 
-            return LLMOutput(raw_text=generated_only)
+            return LLMOutput(raw_text=generated_text)
         
         except Exception as e:
 
@@ -88,8 +88,26 @@ class ResponseParser(Runnable[LLMOutput, ParsedAnswer]):
 
         # remove empty lines
         lines = [line.strip() for line in text.split("\n") if line.strip()]
+        # if there are no lines left, return a default answer
+        if not lines:
+            return ParsedAnswer(answer="No answer generated.")
 
         # keep only first meaningful line
-        answer = lines[0] if lines else "No answer generated."
+        answer = lines[0]
+
+        # Remove common prefixes
+        prefixes = ["Answer:", "A:", "Response:", "-", "*"]
+        for prefix in prefixes:
+            if answer.lower().startswith(prefix.lower()):
+                answer = answer[len(prefix):].strip()
+
+            if answer.startswith('"') and answer.endswith('"'):
+                answer = answer[1:-1].strip()
+                answer = " ".join(answer.split())
+
+            # fallback
+            if not answer:
+                answer = "No answer generated."
+
 
         return ParsedAnswer(answer=answer)
