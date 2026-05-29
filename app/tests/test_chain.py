@@ -52,7 +52,7 @@ def test_response_parser_removes_quotes():
 
     assert result.answer == "85"
 
-
+# The response parser should be able to handle answers that are wrapped in multiple layers of quotes and prefixes, and still extract the clean answer.
 def test_response_parser_empty_lines():
     parser = ResponseParser()
 
@@ -60,3 +60,13 @@ def test_response_parser_empty_lines():
     result = parser.invoke(output)
 
     assert result.answer == "85"
+
+
+# If the LLM output is empty or only contains whitespace, the response parser should return a default message indicating that no answer was generated.
+def test_response_parser_no_content():
+    parser = ResponseParser()
+
+    output = LLMOutput(raw_text="   \n   ")
+    result = parser.invoke(output)
+
+    assert result.answer == "No answer generated."
