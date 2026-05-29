@@ -6,6 +6,7 @@ from app.schemas import (
     LLMOutput,
     ParsedAnswer,
 )
+from typing import ClassVar
 
 # The PromptBuilder class is a specific implementation of the Runnable interface that takes a PromptInput and produces a PromptOutput. The invoke method constructs a prompt string based on the provided dataset statistics and user question, following a specific format that instructs the AI to use only the provided data to answer the question. If the answer cannot be determined from the data, it instructs the AI to respond with "Not enough information." The generated prompt is then returned as a PromptOutput object.
 class PromptBuilder(Runnable[PromptInput, PromptOutput]):
@@ -44,13 +45,15 @@ Answer briefly and clearly in one or two sentences.
     
 # The LLMRunner class is another implementation of the Runnable interface that takes a PromptOutput and produces an LLMOutput. The invoke method uses the previously defined text generation pipeline to generate a response based on the prompt contained in the PromptOutput. The generated text is extracted from the result and returned as an LLMOutput object.
 class LLMRunner(Runnable[PromptOutput, LLMOutput]):
+    generator: ClassVar = None
 
-    def _init_(self):
-        # Lazy loading -> faster tests, better performance
-        self.generator = pipeline(
-            "text-generation",
-            model="HuggingFaceTB/SmolLM2-135M-Instruct"
-        )
+    def _load_generator(self):
+        """Lazy load the Hugging Face model only when needed"""
+        if LLMRunner.generator is None:
+            LLMRunner.generator = pipeline(
+                "text-generation",
+                model="HuggingFaceTB/SmolLM2-135M-Instruct"
+            )
 
     def invoke(self, data: PromptOutput) -> LLMOutput:
 
@@ -59,8 +62,9 @@ class LLMRunner(Runnable[PromptOutput, LLMOutput]):
         # The generated text is extracted from the result, and only the portion of the text that was generated (excluding the original prompt) is returned as an LLMOutput object. 
         # If any exceptions occur during this process, an LLMOutput containing an error message is returned instead.
         try:
+            self._load_generator()
 
-            result = self.generator(
+            result = LLMRunner.generator(
                 data.prompt,
                 max_new_tokens=250,
                 return_full_text=False, # Only return the generated text, not the original prompt.

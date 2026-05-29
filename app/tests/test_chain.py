@@ -1,5 +1,5 @@
-from app.chain.steps import PromptBuilder, ResponseParser
-from app.schemas import PromptInput, LLMOutput
+from app.chain.steps import PromptBuilder, ResponseParser, LLMRunner
+from app.schemas import PromptInput, LLMOutput, PromptOutput
 
 def test_prompt_builder():
 
@@ -70,3 +70,16 @@ def test_response_parser_no_content():
     result = parser.invoke(output)
 
     assert result.answer == "No answer generated."
+
+def test_llmrunner_mocked(monkeypatch):
+
+    def fake_generator(prompt, max_new_tokens, return_full_text, truncation):
+        return [{"generated_text": "Mocked answer"}]
+
+    runner = LLMRunner(name="llm_runner")
+
+    monkeypatch.setattr(LLMRunner, "generator", fake_generator)
+
+    result = runner.invoke(PromptOutput(prompt="test"))
+    assert isinstance(result, LLMOutput)
+    assert result.raw_text == "Mocked answer"
