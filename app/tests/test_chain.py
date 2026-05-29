@@ -1,4 +1,5 @@
 from app.chain.steps import PromptBuilder, ResponseParser, LLMRunner
+from app.chain.runnable import Runnable
 from app.schemas import PromptInput, LLMOutput, PromptOutput
 
 def test_prompt_builder():
@@ -83,3 +84,16 @@ def test_llmrunner_mocked(monkeypatch):
     result = runner.invoke(PromptOutput(prompt="test"))
     assert isinstance(result, LLMOutput)
     assert result.raw_text == "Mocked answer"
+
+class Step1(Runnable[int, int]):
+    def invoke(self, data: int) -> int:
+        return data + 1
+
+class Step2(Runnable[int, int]):
+    def invoke(self, data: int) -> int:
+        return data * 2
+
+def test_runnable_sequence():
+    chain = Step1() | Step2()
+    result = chain.invoke(3)
+    assert result == 8  # (3 + 1) * 2
