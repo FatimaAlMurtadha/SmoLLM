@@ -46,7 +46,7 @@ Answer briefly and clearly in one or two sentences.
 class LLMRunner(Runnable[PromptOutput, LLMOutput]):
 
     def _init_(self):
-        # Lazy loading → faster tests, better performance
+        # Lazy loading -> faster tests, better performance
         self.generator = pipeline(
             "text-generation",
             model="HuggingFaceTB/SmolLM2-135M-Instruct"
