@@ -1,13 +1,9 @@
-from app.chain.steps import PromptBuilder
-from app.schemas import PromptInput
+from app.chain.steps import PromptBuilder, ResponseParser
+from app.schemas import PromptInput, LLMOutput
 
-# This test checks the functionality of the PromptBuilder class
-# which is responsible for constructing a prompt based on the provided dataset statistics and user question. 
-# The test creates an instance of PromptBuilder, constructs a PromptInput with a sample question and dataset statistics, and then invokes the builder to generate a prompt. 
-# Finally, it asserts that the generated prompt contains the expected question and statistics.
 def test_prompt_builder():
 
-    builder = PromptBuilder()
+    builder = PromptBuilder(name="prompt_builder")
 
     data = PromptInput(
         question="What is the average score?",
@@ -15,6 +11,27 @@ def test_prompt_builder():
     )
 
     result = builder.invoke(data)
+    prompt = result.prompt.lower()
 
-    assert "average score" in result.prompt.lower()
-    assert "85" in result.prompt
+    # the answer to the question is included in the prompt
+    assert "what is the average score" in prompt
+
+    # The column name is included in the prompt
+    assert "final_score" in prompt
+
+    # The dataset statistics are included in the prompt
+    assert "mean" in prompt
+    assert "85" in prompt
+
+    assert "use only the provided dataset statistics" in prompt
+    assert "not enough information" in prompt
+
+
+def test_response_parser_basic():
+    parser = ResponseParser(name="response_parser")
+
+    output = LLMOutput(raw_text="The average is 85")
+    result = parser.invoke(output)
+
+    assert result.answer == "The average is 85"
+
